@@ -50,9 +50,16 @@ func main() {
 		}
 	})
 
+	// ポートの設定（環境変数PORTに基づく）
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // デフォルトポート
+	}
+	log.Printf("Server started at :%s", port)
+
+	// サーバーの起動
 	go func() {
-		log.Println("Server started at :8000")
-		if err := http.ListenAndServe(":8000", nil); err != nil {
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			log.Fatalf("server error: %v", err)
 		}
 	}()
