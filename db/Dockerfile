@@ -15,5 +15,7 @@ COPY . .
 # Goアプリケーションをビルド
 RUN go build -o main .
 
+EXPOSE 8080
+
 # コンテナ起動コマンド
 CMD ["./main"]
