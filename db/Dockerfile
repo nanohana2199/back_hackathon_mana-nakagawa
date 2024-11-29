@@ -1,5 +1,5 @@
 # ベースイメージを指定
-FROM golang:1.23.1
+FROM golang:1.23.2
 
 # 作業ディレクトリを設定
 WORKDIR /app
