@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -12,21 +13,27 @@ import (
 	"db/controller"
 	"db/dao"
 	"db/usecase"
-
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	err := godotenv.Load("/Users/mana/curriculum_6_mana-nakagawa/mysql/.env")
-	if err != nil {
-		log.Fatalf("failed to load .env file: %v", err)
-	}
+	err := godotenv.Load(".env")
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@(localhost:3306)/%s",
-		os.Getenv("MYSQL_USER"),
-		os.Getenv("MYSQL_PASSWORD"),
-		os.Getenv("MYSQL_DATABASE"),
+	// もし err がnilではないなら、"読み込み出来ませんでした"が出力されます。
+	if err != nil {
+		fmt.Printf("読み込み出来ませんでした: %v", err)
+	}
+	mysqlUser := os.Getenv("MYSQL_USER")
+	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
+	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
+	mysqlHost := os.Getenv("MYSQL_HOST") // Cloud SQLの接続名
+
+	// Cloud SQL Auth Proxyを利用した接続
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s/%s",
+		mysqlUser,
+		mysqlPassword,
+		mysqlHost,
+		mysqlDatabase,
 	))
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
@@ -50,9 +57,16 @@ func main() {
 		}
 	})
 
+	// ポートの設定（環境変数PORTに基づく）
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // デフォルトポート
+	}
+	log.Printf("Server started at :%s", port)
+
+	// サーバーの起動
 	go func() {
-		log.Println("Server started at :8000")
-		if err := http.ListenAndServe(":8000", nil); err != nil {
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			log.Fatalf("server error: %v", err)
 		}
 	}()
