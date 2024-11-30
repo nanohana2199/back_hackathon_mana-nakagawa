@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -17,12 +16,12 @@ import (
 )
 
 func main() {
-	err := godotenv.Load(".env")
+	//err := godotenv.Load(".env")
 
 	// もし err がnilではないなら、"読み込み出来ませんでした"が出力されます。
-	if err != nil {
-		fmt.Printf("読み込み出来ませんでした: %v", err)
-	}
+	//if err != nil {
+	//	fmt.Printf("読み込み出来ませんでした: %v", err)
+	//}
 	mysqlUser := os.Getenv("MYSQL_USER")
 	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
