@@ -5,6 +5,9 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	//"github.com/joho/godotenv"
+	//"os"
+
+	//"github.com/joho/godotenv"
 
 	"log"
 )
@@ -24,6 +27,13 @@ func InitDB() (*sql.DB, error) {
 	//mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	//mysqlDatabase := os.Getenv("MYSQL_DATABASE")
 	//mysqlHost := os.Getenv("MYSQL_HOST")
+	//if mysqlHost == "" {
+	//	mysqlHost = "127.0.0.1:3306" // TCP接続用のlocalhost
+	//}
+	//
+	//if mysqlUser == "" || mysqlPassword == "" || mysqlHost == "" || mysqlDatabase == "" {
+	//	log.Fatalf("Missing required environment variables")
+	//}
 
 	// データベース接続を確立
 
