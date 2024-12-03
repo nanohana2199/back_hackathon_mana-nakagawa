@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: container
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: database  # 任意のデータベース名を指定
+      MYSQL_USER: user          # 任意のユーザー名
+      MYSQL_PASSWORD: password  # 任意のユーザーパスワード
+    ports:
+      - "3306:3306"  # ホストのポート3306をコンテナのポート3306にマッピング
+    volumes:
+      - mysql-data:/var/lib/mysql  # データ永続化用のボリュームをマウント
+
+volumes:
+  mysql-data:
+    driver: local
