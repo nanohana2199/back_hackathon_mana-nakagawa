@@ -3,13 +3,10 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"os"
 
-	//"github.com/joho/godotenv"
+	//_ "github.com/go-sql-driver/mysql"
 	//"os"
-
-	//"github.com/joho/godotenv"
 
 	"log"
 )
@@ -32,6 +29,7 @@ func InitDB() (*sql.DB, error) {
 	//if mysqlHost == "" {
 	//	mysqlHost = "127.0.0.1:3306" // TCP接続用のlocalhost
 	//}
+	log.Printf("MYSQL_USER: %s, MYSQL_DATABASE: %s, MYSQL_HOST: %s", mysqlUser, mysqlDatabase, mysqlHost)
 
 	if mysqlUser == "" || mysqlPassword == "" || mysqlHost == "" || mysqlDatabase == "" {
 		log.Fatalf("Missing required environment variables")
