@@ -29,7 +29,7 @@ func InitDB() (*sql.DB, error) {
 	//if mysqlHost == "" {
 	//	mysqlHost = "127.0.0.1:3306" // TCP接続用のlocalhost
 	//}
-	log.Printf("MYSQL_USER: %s, MYSQL_DATABASE: %s, MYSQL_HOST: %s", mysqlUser, mysqlDatabase, mysqlHost)
+	log.Printf("MYSQL_USER: %s, MYSQL_PASSWORD:%s, MYSQL_DATABASE: %s, MYSQL_HOST: %s", mysqlUser, mysqlDatabase, mysqlHost)
 
 	if mysqlUser == "" || mysqlPassword == "" || mysqlHost == "" || mysqlDatabase == "" {
 		log.Fatalf("Missing required environment variables")
