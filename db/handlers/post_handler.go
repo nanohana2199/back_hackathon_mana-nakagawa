@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models" // models.Post をインポート
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/services"
+	"log"
 	"net/http"
 )
 
@@ -21,8 +22,15 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// 投稿内容に誹謗中傷が含まれていないかを確認
+	part, err := h.PostService.CheckForHarmfulContent(post.Content)
+	if err != nil {
+		http.Error(w, "投稿内容のチェックに失敗しました", http.StatusInternalServerError)
+		return
+	}
+
 	// 投稿を作成
-	createdPost, err := h.PostService.CreatePost(post)
+	_, err = h.PostService.CreatePost(post)
 	if err != nil {
 		http.Error(w, "投稿作成に失敗しました", http.StatusInternalServerError)
 		return
@@ -32,7 +40,8 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/json")
 	// 作成した投稿をレスポンスとして返す
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdPost)
+	json.NewEncoder(w).Encode(part)
+	log.Printf("part=%v", part)
 }
 
 // GetPostsHandler はすべての投稿を取得するハンドラー
