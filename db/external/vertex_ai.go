@@ -31,15 +31,6 @@ func CheckHarmfulContent(content string) (genai.Part, error) {
 		return nil, fmt.Errorf("vertex AIでの生成に失敗しました: %w", err)
 	}
 
-	//contentq := resp.Candidates[0].Content.Parts
-	//response := map[string]interface{}{
-	//	"Content": contentq,
-	//}
-	//rb, err := json.Marshal(response)
-	//if err != nil {
-	//	return fmt.Errorf("json.Marshal: %w", err)
-	//}
-
 	// Candidateの構造体
 	type Candidate struct {
 		Content struct {
