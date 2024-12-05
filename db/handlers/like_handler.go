@@ -96,6 +96,4 @@ func (h *LikeHandler) GetLikeCountHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// 成功レスポンスを返す
-	w.WriteHeader(http.StatusOK)
 }

@@ -3,10 +3,10 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	"os"
+	"github.com/joho/godotenv"
 
-	//_ "github.com/go-sql-driver/mysql"
-	//"os"
+	_ "github.com/go-sql-driver/mysql"
+	"os"
 
 	"log"
 )
@@ -18,10 +18,10 @@ var DB *sql.DB
 func InitDB() (*sql.DB, error) {
 
 	var err error
-	//err = godotenv.Load()
-	//if err != nil {
-	//	log.Fatal("Error loading .env file")
-	//} // 環境変数からデータベース設定を取得
+	err = godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	} // 環境変数からデータベース設定を取得
 	mysqlUser := os.Getenv("MYSQL_USER")
 	mysqlPassword := os.Getenv("MYSQL_PASSWORD")
 	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
@@ -36,7 +36,7 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	// データベース接続を確立
-	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@unix(%s)/%s", mysqlUser, mysqlPassword, mysqlHost, mysqlDatabase))
+	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", mysqlUser, mysqlPassword, mysqlHost, mysqlDatabase))
 
 	if err != nil {
 		return nil, err
