@@ -36,7 +36,7 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	// データベース接続を確立
-	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s", mysqlUser, mysqlPassword, mysqlHost, mysqlDatabase))
+	DB, err = sql.Open("mysql", fmt.Sprintf("%s:%s@unix(%s)/%s", mysqlUser, mysqlPassword, mysqlHost, mysqlDatabase))
 
 	if err != nil {
 		return nil, err
