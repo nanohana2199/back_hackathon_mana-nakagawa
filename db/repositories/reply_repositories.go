@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models"
 	"log"
@@ -44,7 +45,24 @@ func (r *ReplyRepositoryImpl) CreateReply(reply *models.Reply) (*models.Reply, e
 
 // FindRepliesByPostIDは指定された投稿IDに関連するリプライをデータベースから取得します
 func (r *ReplyRepositoryImpl) FindRepliesByPostID(postID int) ([]models.Reply, error) {
-	rows, err := r.DB.Query("SELECT id, post_id, content FROM replies WHERE post_id = ?", postID)
+	query := `
+		SELECT 
+			replies.id AS reply_id,
+			replies.content AS reply_content,
+			replies.post_id,
+			replies.user_id,
+			users.username AS author
+		FROM 
+			replies
+		JOIN 
+			users
+		ON 
+			replies.user_id = users.user_id
+		WHERE 
+			replies.post_id = ?
+	`
+
+	rows, err := r.DB.Query(query, postID)
 	if err != nil {
 		log.Printf("Error while querying replies for postID %v: %v", postID, err)
 		return nil, err
@@ -53,9 +71,10 @@ func (r *ReplyRepositoryImpl) FindRepliesByPostID(postID int) ([]models.Reply, e
 	log.Printf("rows=%v", rows)
 
 	var replies []models.Reply
+
 	for rows.Next() {
 		var reply models.Reply
-		err := rows.Scan(&reply.ID, &reply.PostID, &reply.Content)
+		err := rows.Scan(&reply.ID, &reply.Content, &reply.PostID, &reply.UserID, &reply.Author)
 		if err != nil {
 			// エラーが発生した場合、ログを出力して詳細を確認
 			log.Printf("rows.Scan error: %v", err)

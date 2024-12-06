@@ -33,3 +33,11 @@ func (s *LikeService) GetLikeCount(postID string) (int, error) {
 	}
 	return count, nil
 }
+
+func (s *LikeService) CheckIfLiked(postID string, userID string) (bool, error) {
+	liked, err := s.LikeRepo.CheckIfLiked(postID, userID)
+	if err != nil {
+		return false, fmt.Errorf("いいねステータスの取得エラー: %v", err)
+	}
+	return liked, nil
+}

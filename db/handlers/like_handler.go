@@ -97,3 +97,31 @@ func (h *LikeHandler) GetLikeCountHandler(w http.ResponseWriter, r *http.Request
 	}
 
 }
+
+func (handler *LikeHandler) CheckLikeStatusHandler(w http.ResponseWriter, r *http.Request) {
+	// パスパラメータから投稿IDを取得
+	vars := mux.Vars(r)
+	postID := vars["post_id"]
+
+	// クエリパラメータからuser_idを取得
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		http.Error(w, "user_idが指定されていません", http.StatusBadRequest)
+		return
+	}
+
+	// ユーザーが投稿に「いいね」しているか確認
+	liked, err := handler.LikeService.CheckIfLiked(postID, userID)
+	if err != nil {
+		http.Error(w, "いいねステータスの取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	// ステータスをJSONで返す
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(map[string]bool{"liked": liked})
+	if err != nil {
+		http.Error(w, "レスポンスの作成に失敗しました", http.StatusInternalServerError)
+		return
+	}
+}

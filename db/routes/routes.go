@@ -39,6 +39,7 @@ func SetupRoutes(db *sql.DB) *mux.Router {
 
 	router.HandleFunc("/posts/{post_id}/like", likeHandler.AddLikeHandler).Methods("POST")
 	router.HandleFunc("/posts/{post_id}/like/count", likeHandler.GetLikeCountHandler).Methods("GET")
+	router.HandleFunc("/posts/{post_id}/like/status", likeHandler.CheckLikeStatusHandler).Methods("GET")
 
 	router.HandleFunc("/replies", replyHandler.CreateReplyHandler).Methods("POST")
 	// SetupRoutes関数の一部

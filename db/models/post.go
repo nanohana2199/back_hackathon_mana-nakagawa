@@ -4,4 +4,6 @@ package models
 type Post struct {
 	ID      int64  `json:"id"`
 	Content string `json:"content"`
+	Author  string `json:"author"`
+	UserID  string `json:"user_id"`
 }

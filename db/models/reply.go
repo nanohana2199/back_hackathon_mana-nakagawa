@@ -9,5 +9,6 @@ type Reply struct {
 	Content   string    `json:"content"`
 	PostID    int64     `json:"post_id"`
 	UserID    string    `json:"user_id"`
+	Author    string    `json:"author"` // 作成者のユーザー名
 	CreatedAt time.Time `json:"created_at"`
 }
