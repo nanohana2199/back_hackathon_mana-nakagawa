@@ -2,9 +2,13 @@
 package services
 
 import (
+	"cloud.google.com/go/vertexai/genai"
 	"errors"
+	"fmt"
+	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/external"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/repositories"
+	"log"
 )
 
 type ReplyService interface {
@@ -12,6 +16,8 @@ type ReplyService interface {
 	CreateReply(content string, postID int64, userID string) (*models.Reply, error)
 	// 投稿IDに関連するリプライを取得
 	GetRepliesByPostID(postID int) ([]models.Reply, error)
+	// リプライ内容の誹謗中傷チェック
+	CheckForHarmfulContent(content string) (genai.Part, error)
 }
 
 type ReplyServiceImpl struct {
@@ -42,4 +48,13 @@ func (s *ReplyServiceImpl) GetRepliesByPostID(postID int) ([]models.Reply, error
 		return nil, errors.New("リプライの取得に失敗しました")
 	}
 	return replies, nil
+}
+
+func (s *ReplyServiceImpl) CheckForHarmfulContent(content string) (genai.Part, error) {
+	part, err := external.CheckHarmfulContent(content)
+	if err != nil {
+		log.Printf("CheckForHarmfulContent failed: %v", err)
+		return nil, fmt.Errorf("誹謗中傷チェックに失敗しました: %w", err)
+	}
+	return part, nil
 }

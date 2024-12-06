@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models" // models.Post をインポート
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/services"
 	"log"
@@ -28,6 +29,18 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "投稿内容のチェックに失敗しました", http.StatusInternalServerError)
 		return
 	}
+
+	partStr := fmt.Sprintf("%s", part)
+	log.Printf("CheckForHarmfulContent result: %s", partStr)
+
+	// 不適切な投稿内容の場合、エラーを返す
+	if partStr == "yes\n" {
+		http.Error(w, "投稿内容が不適切です", http.StatusBadRequest)
+		log.Printf("投稿が不適切と判断されました: %v", post.Content)
+		return
+	}
+
+	log.Printf("hello")
 
 	// 投稿を作成
 	_, err = h.PostService.CreatePost(post)

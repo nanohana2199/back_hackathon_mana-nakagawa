@@ -3,6 +3,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/services"
 	"log"
@@ -29,13 +30,31 @@ func (h *ReplyHandler) CreateReplyHandler(w http.ResponseWriter, r *http.Request
 
 	// リクエストボディをデコード
 	if err := json.NewDecoder(r.Body).Decode(&replyRequest); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "リクエストデータの解析に失敗しました: "+err.Error(), http.StatusBadRequest)
+		log.Printf("Error decoding request body: %v", err)
 		return
 	}
 	log.Printf("CreateReplyHandler: %v", replyRequest)
 
+	reply, err := h.ReplyService.CheckForHarmfulContent(replyRequest.Content)
+	if err != nil {
+		http.Error(w, "投稿内容のチェックに失敗しました: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("CheckForHarmfulContent failed: %v", err)
+		return
+	}
+
+	partStr := fmt.Sprintf("%s", reply)
+	log.Printf("CheckForHarmfulContent result: %s", partStr)
+
+	if partStr == "yes\n" {
+		http.Error(w, "不適切な内容が検出されました", http.StatusBadRequest)
+		log.Printf("Harmful content detected: %v", replyRequest.Content)
+		return
+	}
+
 	// リプライを作成
-	reply, err := h.ReplyService.CreateReply(replyRequest.Content, replyRequest.PostID, replyRequest.UserID)
+	log.Printf("Attempting to create reply for postID: %d, userID: %s", replyRequest.PostID, replyRequest.UserID)
+	_, err = h.ReplyService.CreateReply(replyRequest.Content, replyRequest.PostID, replyRequest.UserID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -44,6 +63,7 @@ func (h *ReplyHandler) CreateReplyHandler(w http.ResponseWriter, r *http.Request
 	// レスポンスとしてリプライを返す
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	log.Printf("Reply successfully created: %v", replyRequest.Content)
 	json.NewEncoder(w).Encode(reply)
 }
 

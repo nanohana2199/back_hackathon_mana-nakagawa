@@ -29,3 +29,12 @@ func (r *LikeRepository) GetLikeCount(postID string) (int, error) {
 	}
 	return count, nil
 }
+func (repo *LikeRepository) CheckIfLiked(postID string, userID string) (bool, error) {
+	query := "SELECT COUNT(*) FROM likes WHERE post_id = ? AND user_id = ?"
+	var count int
+	err := repo.DB.QueryRow(query, postID, userID).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check like status: %v", err)
+	}
+	return count > 0, nil
+}
