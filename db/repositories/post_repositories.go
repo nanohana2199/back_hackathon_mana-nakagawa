@@ -125,3 +125,13 @@ func (r *PostRepository) GetPostsByUserID(userID string) ([]models.Post, error) 
 
 	return posts, nil
 }
+
+func (r *PostRepository) DeletePost(postID int64) error {
+	query := "DELETE FROM posts WHERE id = ?"
+	_, err := r.DB.Exec(query, postID)
+	if err != nil {
+		log.Println("Error executing DeletePost query:", err)
+		return err
+	}
+	return nil
+}
