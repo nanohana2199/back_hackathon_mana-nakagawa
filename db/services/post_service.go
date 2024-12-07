@@ -24,6 +24,15 @@ func (s *PostService) GetPosts() ([]models.Post, error) {
 	return s.PostRepo.GetPosts()
 }
 
+func (s *PostService) GetPostsByUserID(userID string) ([]models.Post, error) {
+	// リポジトリを通じて特定のユーザーの投稿を取得
+	posts, err := s.PostRepo.GetPostsByUserID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("ユーザーID %s の投稿取得に失敗しました: %v", userID, err)
+	}
+	return posts, nil
+}
+
 // CheckForHarmfulContent は投稿内容に誹謗中傷が含まれているかをチェックします
 func (s *PostService) CheckForHarmfulContent(content string) (genai.Part, error) {
 	part, err := external.CheckHarmfulContent(content)

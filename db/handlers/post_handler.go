@@ -40,8 +40,6 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	log.Printf("hello")
-
 	// 投稿を作成
 	_, err = h.PostService.CreatePost(post)
 	if err != nil {
@@ -57,12 +55,29 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 	log.Printf("part=%v", part)
 }
 
-// GetPostsHandler はすべての投稿を取得するハンドラー
+// GetPostsHandler はすべての投稿または特定のユーザーの投稿を取得するハンドラー
 func (h *PostHandler) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
-	posts, err := h.PostService.GetPosts()
-	if err != nil {
-		http.Error(w, "投稿取得に失敗しました", http.StatusInternalServerError)
-		return
+	// クエリパラメータから userId を取得
+	userId := r.URL.Query().Get("userId")
+
+	// posts スライスの宣言
+	var posts []models.Post
+	var err error
+
+	if userId != "" {
+		// userId が指定されている場合、そのユーザーの投稿を取得
+		posts, err = h.PostService.GetPostsByUserID(userId)
+		if err != nil {
+			http.Error(w, "特定のユーザーの投稿取得に失敗しました", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		// userId が指定されていない場合、すべての投稿を取得
+		posts, err = h.PostService.GetPosts()
+		if err != nil {
+			http.Error(w, "投稿取得に失敗しました", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	// Content-Type を application/json に設定
