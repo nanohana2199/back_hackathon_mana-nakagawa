@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models"
 	"log"
+	"time"
 )
 
 type PostRepository struct {
@@ -40,7 +41,8 @@ func (r *PostRepository) GetPosts() ([]models.Post, error) {
         posts.id AS post_id, 
         posts.content AS post_content, 
         posts.user_id, 
-        users.username AS author
+        users.username AS author,
+        posts.created_at
     FROM 
         posts
     JOIN 
@@ -58,10 +60,66 @@ func (r *PostRepository) GetPosts() ([]models.Post, error) {
 
 	for rows.Next() {
 		var post models.Post
-		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author); err != nil {
+		var createdAtStr string
+
+		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &createdAtStr); err != nil {
 			log.Println("Error scanning row:", err) // スキャン時のエラーを記録
 			return nil, err
 		}
+		// createdAtStrをtime.Timeに変換
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
+		if err != nil {
+			log.Println("Error parsing created_at:", err)
+			return nil, err
+		}
+		post.CreatedAt = parsedTime
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
+
+func (r *PostRepository) GetPostsByUserID(userID string) ([]models.Post, error) {
+	var posts []models.Post
+
+	query := `
+    SELECT 
+        posts.id AS post_id, 
+        posts.content AS post_content, 
+        posts.user_id, 
+        users.username AS author,
+        posts.created_at
+    FROM 
+        posts
+    JOIN 
+        users 
+    ON 
+        posts.user_id = users.user_id
+    WHERE 
+        posts.user_id = ?`
+
+	rows, err := r.DB.Query(query, userID)
+	if err != nil {
+		log.Println("Error querying posts by user ID:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post models.Post
+		var createdAtStr string
+
+		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &createdAtStr); err != nil {
+			log.Println("Error scanning row for user ID:", err)
+			return nil, err
+		}
+
+		parsedTime, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
+		if err != nil {
+			log.Println("Error parsing created_at:", err)
+			return nil, err
+		}
+		post.CreatedAt = parsedTime
 		posts = append(posts, post)
 	}
 
