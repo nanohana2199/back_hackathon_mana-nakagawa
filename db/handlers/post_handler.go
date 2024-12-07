@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/models" // models.Post をインポート
 	"github.com/nanohana2199/back_hackathon_mana-nakagawa/db/services"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type PostHandler struct {
@@ -85,4 +87,29 @@ func (h *PostHandler) GetPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// 取得した投稿をレスポンスとして返す
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(posts)
+}
+
+func (h *PostHandler) DeletePostHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postIDParam, ok := vars["post_id"]
+	if !ok {
+		http.Error(w, "post_idが指定されていません", http.StatusBadRequest)
+		return
+	}
+
+	// post_idをint64に変換
+	postID, err := strconv.ParseInt(postIDParam, 10, 64)
+	if err != nil {
+		http.Error(w, "post_idが不正です", http.StatusBadRequest)
+		return
+	}
+
+	err = h.PostService.DeletePost(postID)
+	if err != nil {
+		http.Error(w, "投稿削除に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("投稿が削除されました"))
 }

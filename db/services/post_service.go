@@ -41,3 +41,7 @@ func (s *PostService) CheckForHarmfulContent(content string) (genai.Part, error)
 	}
 	return part, nil
 }
+
+func (s *PostService) DeletePost(postID int64) error {
+	return s.PostRepo.DeletePost(postID)
+}

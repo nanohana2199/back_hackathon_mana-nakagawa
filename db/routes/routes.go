@@ -33,6 +33,7 @@ func SetupRoutes(db *sql.DB) *mux.Router {
 
 	// 投稿作成
 	router.HandleFunc("/posts", postHandler.CreatePostHandler).Methods("POST")
+	router.HandleFunc("/posts/{post_id}", postHandler.DeletePostHandler).Methods("DELETE")
 
 	// 投稿取得ルート
 	router.HandleFunc("/posts", postHandler.GetPostsHandler).Methods("GET")
