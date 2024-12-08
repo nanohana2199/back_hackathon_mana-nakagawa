@@ -14,8 +14,8 @@ type PostRepository struct {
 // CreatePost はデータベースに新しい投稿を追加します
 func (r *PostRepository) CreatePost(post models.Post) (*models.Post, error) { // models.Post型を使用
 	// SQLクエリの実行
-	query := `INSERT INTO posts (content,user_id) VALUES (?, ?)`
-	result, err := r.DB.Exec(query, post.Content, post.UserID)
+	query := `INSERT INTO posts (content,user_id,image_url) VALUES (?,?, ?)`
+	result, err := r.DB.Exec(query, post.Content, post.UserID, post.ImageURL)
 	if err != nil {
 		log.Println("Error executing CreatePost query:", err)
 		return nil, err
@@ -42,6 +42,7 @@ func (r *PostRepository) GetPosts() ([]models.Post, error) {
         posts.content AS post_content, 
         posts.user_id, 
         users.username AS author,
+        posts.image_url,
         posts.created_at
     FROM 
         posts
@@ -60,11 +61,18 @@ func (r *PostRepository) GetPosts() ([]models.Post, error) {
 
 	for rows.Next() {
 		var post models.Post
+		var imageURL sql.NullString
 		var createdAtStr string
 
-		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &createdAtStr); err != nil {
+		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &imageURL, &createdAtStr); err != nil {
 			log.Println("Error scanning row:", err) // スキャン時のエラーを記録
 			return nil, err
+		}
+
+		if imageURL.Valid {
+			post.ImageURL = &imageURL.String
+		} else {
+			post.ImageURL = nil
 		}
 		// createdAtStrをtime.Timeに変換
 		parsedTime, err := time.Parse("2006-01-02 15:04:05", createdAtStr)
@@ -88,6 +96,7 @@ func (r *PostRepository) GetPostsByUserID(userID string) ([]models.Post, error) 
         posts.content AS post_content, 
         posts.user_id, 
         users.username AS author,
+        posts.image_url,
         posts.created_at
     FROM 
         posts
@@ -107,9 +116,10 @@ func (r *PostRepository) GetPostsByUserID(userID string) ([]models.Post, error) 
 
 	for rows.Next() {
 		var post models.Post
+		var imageURL sql.NullString
 		var createdAtStr string
 
-		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &createdAtStr); err != nil {
+		if err := rows.Scan(&post.ID, &post.Content, &post.UserID, &post.Author, &imageURL, &createdAtStr); err != nil {
 			log.Println("Error scanning row for user ID:", err)
 			return nil, err
 		}
