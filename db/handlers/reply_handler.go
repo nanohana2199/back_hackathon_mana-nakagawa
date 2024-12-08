@@ -47,7 +47,7 @@ func (h *ReplyHandler) CreateReplyHandler(w http.ResponseWriter, r *http.Request
 	log.Printf("CheckForHarmfulContent result: %s", partStr)
 
 	if partStr == "yes\n" {
-		http.Error(w, "不適切な内容が検出されました", http.StatusBadRequest)
+		http.Error(w, "不適切な内容が検出されました", http.StatusForbidden)
 		log.Printf("Harmful content detected: %v", replyRequest.Content)
 		return
 	}

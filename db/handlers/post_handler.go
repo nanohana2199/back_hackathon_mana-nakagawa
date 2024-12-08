@@ -37,7 +37,7 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 
 	// 不適切な投稿内容の場合、エラーを返す
 	if partStr == "yes\n" {
-		http.Error(w, "投稿内容が不適切です", http.StatusBadRequest)
+		http.Error(w, "投稿内容が不適切です", http.StatusForbidden)
 		log.Printf("投稿が不適切と判断されました: %v", post.Content)
 		return
 	}
@@ -54,7 +54,7 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 	// 作成した投稿をレスポンスとして返す
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(part)
-	log.Printf("part=%v", part)
+
 }
 
 // GetPostsHandler はすべての投稿または特定のユーザーの投稿を取得するハンドラー
